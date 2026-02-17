@@ -22,16 +22,17 @@ WORKDIR /openclaw
 
 # Automatically detect and use the latest stable OpenClaw release tag
 # Falls back to v2026.2.15 if detection fails (ensures build reliability)
-ARG OPENCLAW_GIT_REF=""
+# Can be overridden by passing --build-arg OPENCLAW_GIT_REF=<tag>
+ARG OPENCLAW_GIT_REF
 RUN set -eux; \
-  if [ -z "${OPENCLAW_GIT_REF}" ]; then \
+  if [ -z "${OPENCLAW_GIT_REF:-}" ]; then \
     echo "🔍 Auto-detecting latest OpenClaw stable release..."; \
     OPENCLAW_GIT_REF=$(git ls-remote --tags --sort=v:refname https://github.com/openclaw/openclaw.git | \
       grep -v '\^{}' | \
       grep -E 'refs/tags/v[0-9]+\.[0-9]+\.[0-9]+$' | \
       tail -1 | \
       sed 's|.*refs/tags/||' || echo "v2026.2.15"); \
-    echo "✓ Using OpenClaw ${OPENCLAW_GIT_REF}"; \
+    echo "✓ Auto-detected OpenClaw ${OPENCLAW_GIT_REF}"; \
   else \
     echo "✓ Using pinned OpenClaw ${OPENCLAW_GIT_REF}"; \
   fi; \
